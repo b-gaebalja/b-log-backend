@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.User
 
 class UserDto(
     private val id: Any?,
-    private val email: String,
+    val email: String,
     private val password: String,
     private val userId: String,
     private val username: String,
