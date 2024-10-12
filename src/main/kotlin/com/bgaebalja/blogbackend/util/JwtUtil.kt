@@ -1,6 +1,6 @@
 package com.bgaebalja.blogbackend.util
 
-import com.example.kotlinprojecttest.user.exception.JwtCustomException
+import com.bgaebalja.blogbackend.user.exception.JwtCustomException
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import java.nio.charset.StandardCharsets.UTF_8

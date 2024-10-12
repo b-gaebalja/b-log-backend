@@ -1,4 +1,4 @@
-package com.example.kotlinprojecttest.user.domain
+package com.bgaebalja.blogbackend.user.domain
 
 import jakarta.persistence.Embeddable
 
