@@ -5,13 +5,19 @@ import com.bgaebalja.blogbackend.user.domain.Users
 import com.bgaebalja.blogbackend.user.dto.JoinRequest
 import com.bgaebalja.blogbackend.user.dto.UserDto
 import com.bgaebalja.blogbackend.user.repository.UserRepository
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
+import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.Disposable
+import reactor.core.publisher.Mono
 
 @Service
 @Transactional(readOnly = true)
@@ -29,38 +35,22 @@ class UserServiceImpl(
         userRepository.save(createUser)
     }
 
-    override fun getKakaoUser(accessToken: String): Any? {
+    @Transactional
+    override fun getKakaoUser(accessToken: String): Mono<String> {
         val webClient = WebClient.builder()
-            .baseUrl("https://kapi.kakao.com/v2/user/me")
-            .defaultHeader(AUTHORIZATION, "Bearer ${accessToken}")
             .defaultHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE)
             .build()
 
-        val subscribe = webClient.get()
+         return webClient.get()
+            .uri("https://kapi.kakao.com/v2/user/me")
+            .header(AUTHORIZATION, "Bearer ${accessToken}")
             .retrieve()
-            .bodyToMono(LinkedHashMap::class.java)
-            .subscribe {
-                val result = it["kakao_account"]
-                result as LinkedHashMap<*, *>
-                val email = result["email"].toString()
-                println("email: $email")
-                userRepository.findByEmail(email)?: throw IllegalArgumentException("email not found")
-                val createUser =
-                    Users.createUser(
-                        email,
-                        "1111",
-                        passwordEncoder.encode(createPassword()),
-                        "1111"
-                    )
-                userRepository.save(createUser)
-            }
-
-        return subscribe
+            .bodyToMono<String>()
     }
 
     override fun findUserWithRole(email: String): UserDto? {
-        val user = userRepository.findUserWithRole(email)
-         return UserDto(
+        val user = userRepository.findUserWithRole(email)?: return null
+        return UserDto(
             user.id,
             user.email,
             user.password,
@@ -70,8 +60,6 @@ class UserServiceImpl(
             user.roles.map { it.role }.toMutableList()
         )
     }
-
-
 
 
 }

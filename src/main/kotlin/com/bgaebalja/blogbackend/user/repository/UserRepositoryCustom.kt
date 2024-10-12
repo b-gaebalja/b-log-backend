@@ -4,6 +4,6 @@ import com.bgaebalja.blogbackend.user.domain.Users
 
 interface UserRepositoryCustom {
 
-    fun findUserWithRole(email: String) : Users
+    fun findUserWithRole(email: String) : Users?
 
 }

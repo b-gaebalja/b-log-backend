@@ -15,7 +15,7 @@ class UserDetailServiceImpl(
         if (username == null) {
             throw UsernameNotFoundException("Username not found")
         }
-        val findUser = userRepository.findUserWithRole(username)?: throw UsernameNotFoundException("User not found")
+        val findUser = userRepository.findUserWithRole(username)?: throw IllegalStateException("User not found")
         return UserDto(
         findUser.id,findUser.email,findUser.password,findUser.username,findUser.username,findUser.fullName,
             findUser.roles.map { it.role }.toMutableList()
