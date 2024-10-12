@@ -1,4 +1,4 @@
-package com.example.kotlinprojecttest.security.handler
+package com.bgaebalja.blogbackend.security.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest

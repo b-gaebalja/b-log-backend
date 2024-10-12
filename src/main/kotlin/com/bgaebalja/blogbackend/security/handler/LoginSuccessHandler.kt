@@ -1,7 +1,7 @@
-package com.example.kotlinprojecttest.security.handler
+package com.bgaebalja.blogbackend.security.handler
 
 import com.bgaebalja.blogbackend.util.generateToken
-import com.example.kotlinprojecttest.user.dto.UserDto
+import com.bgaebalja.blogbackend.user.dto.UserDto
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

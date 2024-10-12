@@ -1,4 +1,4 @@
-package com.example.kotlinprojecttest.user.dto
+package com.bgaebalja.blogbackend.user.dto
 
 import org.springframework.web.multipart.MultipartFile
 
