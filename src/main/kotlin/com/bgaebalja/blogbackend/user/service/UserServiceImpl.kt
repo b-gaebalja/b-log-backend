@@ -49,7 +49,8 @@ class UserServiceImpl(
     }
 
     override fun findUserWithRole(email: String): UserDto? {
-        val user = userRepository.findUserWithRole(email)?: return null
+        userRepository.findByEmail(email)?: return null
+        val user = userRepository.findUserWithRole(email)
         return UserDto(
             user.id,
             user.email,
