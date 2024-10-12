@@ -4,7 +4,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 
 class UserDto(
-    private val id: Any?,
+    private val id: Long,
     val email: String,
     private val password: String,
     private val userId: String,
@@ -15,7 +15,7 @@ class UserDto(
     email,password,roles.map{SimpleGrantedAuthority("ROLE_${it}")}
 ) {
 
-    fun getClaims(): MutableMap<String, Any?> {
+    fun getClaims(): MutableMap<String, Any> {
         return mutableMapOf(
             "id" to id,
             "email" to email,
