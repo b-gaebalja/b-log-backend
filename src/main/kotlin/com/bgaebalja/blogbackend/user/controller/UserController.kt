@@ -26,7 +26,6 @@ class UserController(
     @PostMapping("/user")
     fun getUser(@RequestBody email: UserRequest): ResponseEntity<Any> {
         val userDto = userService.findUserWithRole(email.email)?:run {
-            println("리턴")
             return ResponseEntity.status(OK).body(mapOf("ERROR" to "NOT FOUND"))
         }
         return ResponseEntity.status(OK).body(userDto)

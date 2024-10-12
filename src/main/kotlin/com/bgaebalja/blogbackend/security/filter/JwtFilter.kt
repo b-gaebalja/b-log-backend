@@ -1,11 +1,13 @@
 package com.bgaebalja.blogbackend.security.filter
 
-import com.bgaebalja.blogbackend.util.validateJwtToken
 import com.bgaebalja.blogbackend.user.dto.UserDto
+import com.bgaebalja.blogbackend.util.validateJwtToken
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
@@ -29,28 +31,24 @@ class JwtFilter: OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         val objectMapper = ObjectMapper()
-        val authorizationHeader = request.getHeader("Authorization")
+        val authorizationHeader = request.getHeader(AUTHORIZATION)
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             val accessToken = authorizationHeader.substring(7)
             val claims = validateJwtToken(accessToken) ?: run {
                 val message =
                     objectMapper.writeValueAsString(mapOf("ERROR" to "ERROR_ACCESS_TOKEN"))
-                response.contentType = "application/json"
+                response.contentType = APPLICATION_JSON_VALUE
                 response.writer.write(message)
                 return
             }
-            val id = claims["id"]
-            val email = claims["email"]
-            val userId = claims["userId"]
-            val username = claims["username"]
-            val fullName = claims["fullName"]
+            val id = claims["id"] as Long
+            val email = claims["email"] as String
+            val userId = claims["userId"] as String
+            val username = claims["username"] as String
+            val fullName = claims["fullName"] as String
             val roles = claims["roles"] as MutableList<String?>
-            val password = claims["password"]
-            val userDto = UserDto(
-                id, userId.toString(),
-                email.toString(), username.toString(), fullName.toString(),
-                password.toString(), roles
-            )
+            val password = claims["password"] as String
+            val userDto = UserDto(id, userId, email, username, fullName, password, roles)
             val authenticationToken =
                 UsernamePasswordAuthenticationToken(userDto, password, userDto.authorities)
             SecurityContextHolder.getContext().authentication = authenticationToken

@@ -10,15 +10,17 @@ import org.springframework.stereotype.Service
 @Service
 class UserDetailServiceImpl(
     private val userRepository: UserRepository
-): UserDetailsService {
+) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails {
         if (username == null) {
             throw UsernameNotFoundException("Username not found")
         }
-        val findUser = userRepository.findUserWithRole(username)?: throw IllegalStateException("User not found")
-        return UserDto(
-        findUser.id,findUser.email,findUser.password,findUser.username,findUser.username,findUser.fullName,
-            findUser.roles.map { it.role }.toMutableList()
-        )
+        userRepository.findByEmail(username) ?: throw UsernameNotFoundException("User not found")
+        userRepository.findUserWithRole(username).apply {
+            return UserDto(
+                this.id!!, this.email, this.password, this.userId, this.username, this.fullName,
+                this.roles.map { it.role }.toMutableList()
+            )
+        }
     }
 }
