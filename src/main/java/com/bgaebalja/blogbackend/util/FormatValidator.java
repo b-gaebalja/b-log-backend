@@ -9,38 +9,33 @@ import static com.bgaebalja.blogbackend.exception.ExceptionMessage.*;
 import static com.bgaebalja.blogbackend.util.RegularExpressionConstant.EMAIL_PATTERN;
 import static com.bgaebalja.blogbackend.util.RegularExpressionConstant.POSITIVE_INTEGER_PATTERN;
 
-public class InputFormatValidator {
+public class FormatValidator {
     public static void validateEmail(String email) {
-        checkEmailHasValue(email);
-        checkEmailPattern(email);
-    }
-
-    private static void checkEmailHasValue(String email) {
-        if (email == null || email.isBlank()) {
+        if (!hasValue(email)) {
             throw new EmailNoValueException(EMAIL_NO_VALUE_EXCEPTION_MESSAGE);
         }
-    }
-
-    private static void checkEmailPattern(String email) {
-        if (!email.matches(EMAIL_PATTERN)) {
+        ;
+        if (!isValid(email, EMAIL_PATTERN)) {
             throw new InvalidEmailException(INVALID_EMAIL_EXCEPTION_MESSAGE + email);
         }
+        ;
     }
 
     public static void validateId(String id) {
-        checkIdIsNotBlank(id);
-        checkIdPattern(id);
-    }
-
-    private static void checkIdIsNotBlank(String id) {
-        if (id == null || id.isBlank()) {
+        if (!hasValue(id)) {
             throw new IdNoValueException(ID_NO_VALUE_EXCEPTION_MESSAGE);
         }
-    }
-
-    private static void checkIdPattern(String id) {
-        if (!id.matches(POSITIVE_INTEGER_PATTERN)) {
+        ;
+        if (!isValid(id, POSITIVE_INTEGER_PATTERN)) {
             throw new InvalidIdException(INVALID_ID_EXCEPTION_MESSAGE + id);
         }
+    }
+
+    public static boolean hasValue(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private static boolean isValid(String value, String pattern) {
+        return value.matches(pattern);
     }
 }
