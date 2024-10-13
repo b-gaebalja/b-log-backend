@@ -4,18 +4,31 @@ import com.bgaebalja.blogbackend.user.dto.RefreshTokenRequest
 import com.bgaebalja.blogbackend.user.exception.JwtCustomException
 import com.bgaebalja.blogbackend.util.generateToken
 import com.bgaebalja.blogbackend.util.validateJwtToken
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
+private const val VALIDATE_TOKEN = "JWT 토큰 재발급"
+private const val VALIDATE_TOKEN_DESCRIPTION = "access 토큰과 refresh 토큰을 받아 검증 후 재발급 합니다"
+private const val ACCESS_TOKEN = "재발급 요청한 회원의 access 토큰"
+private const val REFRESH_TOKEN = "재발급 요청한 회원의 refresh 토큰"
+
+@Tag(name = "JWT token Refresh Controller", description = "JWT 토큰 재발급 관련 API")
 @RestController
 class RefreshController {
 
+
+    @Operation(summary = VALIDATE_TOKEN, description = VALIDATE_TOKEN_DESCRIPTION)
     @PostMapping("/users/refresh")
     fun refreshToken(
+        @Parameter(description = ACCESS_TOKEN)
         @RequestHeader("Authorization") authHeader: String?,
+        @Parameter(description = REFRESH_TOKEN)
         @RequestBody refreshTokenRequest: RefreshTokenRequest
     ): Map<String, Any> {
         val refreshToken = refreshTokenRequest.refreshToken ?: throw JwtCustomException("Refresh token is invalid")
