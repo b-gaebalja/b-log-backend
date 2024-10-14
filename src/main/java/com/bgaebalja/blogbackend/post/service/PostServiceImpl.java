@@ -20,7 +20,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(isolation = READ_COMMITTED, timeout = 20)
     public Long createPost(RegisterPostRequest registerPostRequest) {
-        Users user = userRepository.findByEmail(registerPostRequest.getEmail());
+        Users user = userRepository.findByEmailAndDeleteYn(registerPostRequest.getEmail(),false);
         Post post = postRepository.save(Post.from(registerPostRequest, user));
 
         return post.getId();
