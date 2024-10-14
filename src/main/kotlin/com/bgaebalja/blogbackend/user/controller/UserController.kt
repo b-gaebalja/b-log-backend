@@ -1,11 +1,14 @@
 package com.bgaebalja.blogbackend.user.controller
 
+import com.bgaebalja.blogbackend.user.dto.DeleteUserRequest
 import com.bgaebalja.blogbackend.user.dto.JoinRequest
 import com.bgaebalja.blogbackend.user.dto.UserDto
 import com.bgaebalja.blogbackend.user.dto.UserRequest
+import com.bgaebalja.blogbackend.user.exception.DeleteUserFailException
 import com.bgaebalja.blogbackend.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.Parameters
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -23,41 +26,72 @@ class UserController(
     private val userService: UserService,
 ) {
 
-    companion object {
-        private const val JOIN_USER = "회원가입"
-        private const val JOIN_USER_DESCRIPTION = "회원가입을 할 수 있습니다"
-        private const val JOIN_USER_FORM = "회원가입 양식"
-
-        private const val GET_USER = "유저 조회"
-        private const val GET_USER_DESCRIPTION = "카카오 계정에 등록된 이메일을 통해 유저를 조회합니다"
-        private const val GET_USER_FORM = "유저 조회에 사용할 카카오 계정에 등록된 이메일"
-    }
-
-    @ApiResponse(responseCode = "201", description = "회원가입",
+    @ApiResponse(
+        responseCode = "201", description = "회원가입",
         content = [Content(schema = Schema(example = "[SUCCESS]"))]
     )
     @Operation(summary = JOIN_USER, description = JOIN_USER_DESCRIPTION)
     @PostMapping("join")
-    fun join(@Valid
-             @Parameter(description = JOIN_USER_FORM)
-             @ModelAttribute joinRequest: JoinRequest)
-             : ResponseEntity<String> {
+    fun join(
+        @Valid
+        @Parameter(description = JOIN_USER_FORM)
+        @ModelAttribute joinRequest: JoinRequest
+    )
+            : ResponseEntity<String> {
         userService.save(joinRequest)
         return ResponseEntity.status(CREATED).body("SUCCESS")
     }
 
-    @ApiResponse(responseCode = "200", description = "유저조회",
-        content = [Content(schema = Schema(implementation = UserDto::class))])
+    @ApiResponse(
+        responseCode = "200", description = "유저조회",
+        content = [Content(schema = Schema(implementation = UserDto::class))]
+    )
     @Operation(summary = GET_USER, description = GET_USER_DESCRIPTION)
     @PostMapping("/user")
     fun getUser(
         @Valid
         @Parameter(description = GET_USER_FORM)
-        @RequestBody email: UserRequest): ResponseEntity<Any> {
+        @RequestBody email: UserRequest
+    ): ResponseEntity<Any> {
         val userDto = userService.findUserWithRole(email.email) ?: run {
             return ResponseEntity.status(OK).body(mapOf("ERROR" to "NOT FOUND"))
         }
         return ResponseEntity.status(OK).body(userDto)
     }
 
+    @ApiResponse(
+        responseCode = "200", description = "회원탈퇴",
+        content = [Content(schema = Schema(example = "[DELETE_USER_SUCCESS]"))]
+    )
+    @Operation(summary = DELETE_USER, description = DELETE_USER_DESCRIPTION)
+    @DeleteMapping("/{userId}")
+    fun deleteUser(
+        @Parameter(description = USER_ID)
+        @PathVariable userId: String,
+        @Parameter(description = DELETE_USER_FORM)
+        @RequestBody deleteUserRequest: DeleteUserRequest
+    ): ResponseEntity<String> {
+        userService.deleteUserMatch(userId, deleteUserRequest).apply {
+            if (this) userService.deleteUserByUserId(userId)
+            else
+                throw DeleteUserFailException("회원 탈퇴에 실패했습니다.")
+        }
+        return ResponseEntity.status(OK).body("DELETE_USER_SUCCESS")
+    }
+
+
 }
+
+private const val USER_ID = "회원 조회를 위한 유저 아이디"
+private const val JOIN_USER = "회원가입"
+private const val JOIN_USER_DESCRIPTION = "회원가입을 할 수 있습니다"
+private const val JOIN_USER_FORM = "회원가입 양식"
+
+private const val GET_USER = "회원 조회"
+private const val GET_USER_DESCRIPTION = "카카오 계정에 등록된 이메일을 통해 유저를 조회합니다"
+private const val GET_USER_FORM = "회원 조회에 사용할 카카오 계정에 등록된 이메일"
+
+private const val DELETE_USER = "회원 탈퇴"
+private const val DELETE_USER_DESCRIPTION = "카카오 계정에 등록된 이메일과 비밀번호로 회원을 조회하여 검증 후 탈퇴 가능합니다"
+private const val DELETE_USER_FORM = "회원 탈퇴 검증을 위한 카카오 계정에 등록된 이메일과 가입시 입력한 비밀번호"
+

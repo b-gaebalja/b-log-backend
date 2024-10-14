@@ -1,9 +1,11 @@
 package com.bgaebalja.blogbackend.user.domain
 
+import com.bgaebalja.blogbackend.audit.BaseGeneralEntity
 import jakarta.persistence.*
 import jakarta.persistence.FetchType.LAZY
 import jakarta.persistence.GenerationType.IDENTITY
 import java.util.*
+
 
 @Entity
 class Users(
@@ -17,7 +19,7 @@ class Users(
         name = "user_roles",
         joinColumns = [JoinColumn(name = "user_id")]
     ) var roles: MutableList<UserRole> = mutableListOf()
-) {
+): BaseGeneralEntity() {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     var id: Long? = null
@@ -34,6 +36,11 @@ class Users(
             user.roles.add(UserRole("USER"))
             return user
         }
+
+        fun deleteUser(user: Users){
+            user.deleteEntity()
+        }
+
     }
 
 }

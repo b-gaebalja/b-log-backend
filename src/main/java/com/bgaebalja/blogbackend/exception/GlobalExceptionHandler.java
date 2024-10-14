@@ -1,8 +1,12 @@
 package com.bgaebalja.blogbackend.exception;
 
+import com.bgaebalja.blogbackend.user.exception.DeleteUserFailException;
+import com.bgaebalja.blogbackend.user.exception.JwtCustomException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,9 +17,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -160,6 +161,28 @@ public class GlobalExceptionHandler {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    }
+
+    @ExceptionHandler(DeleteUserFailException.class)
+    private ResponseEntity<ErrorResponse> handleDeleteUserFailException(DeleteUserFailException e) {
+        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+            .message(e.getMessage())
+            .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    }
+
+    @ExceptionHandler(JwtCustomException.class)
+    private ResponseEntity<ErrorResponse> handleJwtCustomException(JwtCustomException e) {
+        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .message(e.getMessage())
+            .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
     }
 }
