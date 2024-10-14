@@ -73,6 +73,10 @@ dependencies {
     // health check
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // file
+    implementation("software.amazon.awssdk:s3:2.20.52")
+    implementation("software.amazon.awssdk:sts:2.20.52")
+
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
