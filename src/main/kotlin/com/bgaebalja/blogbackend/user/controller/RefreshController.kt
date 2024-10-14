@@ -2,8 +2,7 @@ package com.bgaebalja.blogbackend.user.controller
 
 import com.bgaebalja.blogbackend.user.dto.RefreshTokenRequest
 import com.bgaebalja.blogbackend.user.exception.JwtCustomException
-import com.bgaebalja.blogbackend.util.generateToken
-import com.bgaebalja.blogbackend.util.validateJwtToken
+import com.bgaebalja.blogbackend.util.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -20,7 +19,7 @@ private const val REFRESH_TOKEN = "재발급 요청한 회원의 refresh 토큰"
 
 @Tag(name = "JWT token Refresh Controller", description = "JWT 토큰 재발급 관련 API")
 @RestController
-class RefreshController {
+class RefreshController(private val jwtUtil: JwtUtil) {
 
 
     @Operation(summary = VALIDATE_TOKEN, description = VALIDATE_TOKEN_DESCRIPTION)
@@ -44,10 +43,10 @@ class RefreshController {
             )
         }
 
-        val claims = validateJwtToken(refreshToken)
-        val newAccessToken = generateToken(claims, 10)
+        val claims = jwtUtil.validateJwtToken(refreshToken)
+        val newAccessToken = jwtUtil.generateToken(claims, 10)
         val newRefreshToken = when (checkTime((claims?.get("exp").toString().toLong()))) {
-            true -> generateToken(claims, 60 * 24)
+            true -> jwtUtil.generateToken(claims, 60 * 24)
             false -> refreshToken
         }
         return mapOf("accessToken" to newAccessToken, "refreshToken" to newRefreshToken)
@@ -63,7 +62,7 @@ class RefreshController {
 
     private fun checkExpiredToken(token: String): Boolean {
         try {
-            validateJwtToken(token)
+            jwtUtil.validateJwtToken(token)
         } catch (e: JwtCustomException) {
             return e.message.equals("Expired")
         }
