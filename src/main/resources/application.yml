@@ -15,3 +15,15 @@ spring:
           format_sql: true
 logging:
   config: classpath:logback-spring.xml
+cloud:
+  aws:
+    credentials:
+      access-key: ${B_LOG_S3_ACCESS_KEY}
+      secret-key: ${B_LOG_S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket-name: ${B_LOG_S3_BUCKET_NAME}
+jwt:
+  secret:
+    key: ${B_LOG_JWT_SECRET_KEY}
