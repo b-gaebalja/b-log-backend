@@ -1,7 +1,7 @@
 package com.bgaebalja.blogbackend.security.filter
 
 import com.bgaebalja.blogbackend.user.dto.UserDto
-import com.bgaebalja.blogbackend.util.validateJwtToken
+import com.bgaebalja.blogbackend.util.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -10,9 +10,11 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
-class JwtFilter: OncePerRequestFilter() {
+@Component
+class JwtFilter(private val jwtUtil: JwtUtil): OncePerRequestFilter() {
     private fun validatePath(path: String, pathUri: String) = path.startsWith(pathUri)
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
@@ -34,7 +36,7 @@ class JwtFilter: OncePerRequestFilter() {
         val authorizationHeader = request.getHeader(AUTHORIZATION)
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             val accessToken = authorizationHeader.substring(7)
-            val claims = validateJwtToken(accessToken) ?: run {
+            val claims = jwtUtil.validateJwtToken(accessToken) ?: run {
                 val message =
                     objectMapper.writeValueAsString(mapOf("ERROR" to "ERROR_ACCESS_TOKEN"))
                 response.contentType = APPLICATION_JSON_VALUE
