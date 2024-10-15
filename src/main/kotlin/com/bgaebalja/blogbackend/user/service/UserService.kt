@@ -17,6 +17,14 @@ interface UserService {
 
     fun findUserByUserId(userId: String): Users?
 
+    fun findUserByEmail(email: String): Boolean
+
+    fun editUsername(userId: String ,username: String)
+
+    fun editPassword(userId: String ,password: String)
+
+    fun editUndelete(joinRequest: JoinRequest)
+
     fun deleteUserMatch(userId: String, deleteUserRequest: DeleteUserRequest): Boolean
 
     fun deleteUserByUserId(userId: String)

@@ -61,9 +61,38 @@ class UserServiceImpl(
         }
     }
 
-    override fun findUserByUserId(userId: String): Users? {
+    override fun findUserByUserId(userId: String): Users {
         return userRepository.findOneByUserId(userId)
             ?: throw IllegalStateException("User not found")
+    }
+
+    override fun findUserByEmail(email: String): Boolean {
+         userRepository.findUsersByEmail(email)?: return false
+         return true
+    }
+
+    @Transactional
+    override fun editUsername(userId: String, username: String) {
+        val user =
+            userRepository.findOneByUserId(userId) ?: throw IllegalStateException("User not found")
+        user.username = username
+    }
+
+    @Transactional
+    override fun editPassword(userId: String, password: String) {
+        val user =
+            userRepository.findOneByUserId(userId) ?: throw IllegalStateException("User not found")
+        user.password = passwordEncoder.encode(password)
+    }
+
+    @Transactional
+    override fun editUndelete(joinRequest: JoinRequest) {
+        userRepository.findUsersByEmail(joinRequest.email)!!
+            .apply {
+                this.username = joinRequest.username
+                this.password = passwordEncoder.encode(joinRequest.password)
+                Users.undeleteUser(this)
+            }
     }
 
 

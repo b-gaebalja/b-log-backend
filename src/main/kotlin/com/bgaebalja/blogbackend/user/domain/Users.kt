@@ -10,9 +10,9 @@ import java.util.*
 @Entity
 class Users(
     val email: String,
-    val password: String,
+    var password: String,
     val userId: String,
-    val username: String,
+    var username: String,
     val fullName: String,
     @ElementCollection(fetch = LAZY)
     @CollectionTable(
@@ -39,6 +39,10 @@ class Users(
 
         fun deleteUser(user: Users){
             user.deleteEntity()
+        }
+
+        fun undeleteUser(user: Users){
+            user.undeleteEntity()
         }
 
     }
