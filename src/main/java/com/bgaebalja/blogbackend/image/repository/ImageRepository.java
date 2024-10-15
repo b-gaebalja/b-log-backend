@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
-    List<Image> findByTargetTypeAndTargetIdAndDeleteYnFalse(TargetType targetType, Long id);
+    List<Image> findByTargetTypeAndTargetIdAndDeleteYnFalseOrderByCreatedAtDesc(TargetType targetType, Long id);
 
     Optional<Image> findByIdAndDeleteYnFalse(Long id);
 
