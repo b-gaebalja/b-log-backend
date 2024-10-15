@@ -10,6 +10,7 @@ class UserDto(
     private val userId: String,
     private val username: String,
     private val fullName: String,
+    private var imageUrl: String = "",
     private var roles: MutableList<String?> = mutableListOf()
 ): User(
     email,password,roles.map{SimpleGrantedAuthority("ROLE_${it}")}
@@ -22,6 +23,7 @@ class UserDto(
             "userId" to userId,
             "username" to username,
             "fullName" to fullName,
+            "imageUrl" to imageUrl,
             "roles" to roles
         )
     }

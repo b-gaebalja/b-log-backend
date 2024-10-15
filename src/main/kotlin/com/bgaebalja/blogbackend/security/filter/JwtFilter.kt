@@ -48,9 +48,10 @@ class JwtFilter(private val jwtUtil: JwtUtil): OncePerRequestFilter() {
             val userId = claims["userId"] as String
             val username = claims["username"] as String
             val fullName = claims["fullName"] as String
+            val imageUrl = claims["imageUrl"] as String
             val roles = claims["roles"] as MutableList<String?>
             val password = claims["password"] as String
-            val userDto = UserDto(id, userId, email, username, fullName, password, roles)
+            val userDto = UserDto(id, userId, email, username, fullName, password, imageUrl,roles)
             val authenticationToken =
                 UsernamePasswordAuthenticationToken(userDto, password, userDto.authorities)
             SecurityContextHolder.getContext().authentication = authenticationToken

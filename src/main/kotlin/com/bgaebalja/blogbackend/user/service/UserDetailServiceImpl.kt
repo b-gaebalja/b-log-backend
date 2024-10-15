@@ -17,9 +17,10 @@ class UserDetailServiceImpl(
         }
         userRepository.findByEmailAndDeleteYn(username,false) ?: throw UsernameNotFoundException("User not found")
         userRepository.findUserWithRole(username).apply {
+
             return UserDto(
                 this.id!!, this.email, this.password, this.userId, this.username, this.fullName,
-                this.roles.map { it.role }.toMutableList()
+                "",this.roles.map { it.role }.toMutableList()
             )
         }
     }
