@@ -4,6 +4,7 @@ import com.bgaebalja.blogbackend.audit.BaseGeneralEntity;
 import com.bgaebalja.blogbackend.user.domain.Users;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import static com.bgaebalja.blogbackend.util.EntityConstant.BOOLEAN_DEFAULT_FALSE;
@@ -13,6 +14,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @NoArgsConstructor(access = PROTECTED)
+@Getter
 public class Post extends BaseGeneralEntity {
     @Convert(converter = Content.ContentConverter.class)
     @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
@@ -22,13 +24,13 @@ public class Post extends BaseGeneralEntity {
     private boolean completeYn;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @JoinColumn(name = "writer_id")
+    private Users writer;
 
     @Builder
     private Post(Content content, Users user) {
         this.content = content;
-        this.user = user;
+        writer = user;
     }
 
     public static Post from(RegisterPostRequest registerPostRequest, Users user) {
