@@ -29,10 +29,10 @@ public class Comment extends BaseGeneralEntity {
     private Content content;
 
     @ManyToOne(fetch = LAZY)
-    @Column(name = "parent_id", nullable = true)
+    @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    @OneToMany(mappedBy = "parentId", orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 
     @Builder
