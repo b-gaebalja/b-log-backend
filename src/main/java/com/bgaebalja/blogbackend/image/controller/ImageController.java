@@ -1,7 +1,7 @@
 package com.bgaebalja.blogbackend.image.controller;
 
 import com.bgaebalja.blogbackend.image.domain.AddImageRequest;
-import com.bgaebalja.blogbackend.image.domain.GetImageResponse;
+import com.bgaebalja.blogbackend.image.domain.AddImageResponse;
 import com.bgaebalja.blogbackend.image.domain.Image;
 import com.bgaebalja.blogbackend.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,10 +27,10 @@ public class ImageController {
 
     @Operation(summary = ADD_IMAGE, description = ADD_IMAGE_DESCRIPTION)
     @PostMapping()
-    public ResponseEntity<GetImageResponse> addImage(
+    public ResponseEntity<AddImageResponse> addImage(
             @ModelAttribute @Parameter(description = ADD_IMAGE_FORM) AddImageRequest addImageRequest
     ) {
         Image image = imageService.createImage(addImageRequest);
-        return ResponseEntity.status(CREATED).body(GetImageResponse.from(image));
+        return ResponseEntity.status(CREATED).body(AddImageResponse.from(image));
     }
 }

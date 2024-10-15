@@ -44,4 +44,11 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new PostNotFoundException
                         (String.format(POST_NOT_FOUND_EXCEPTION_MESSAGE, id)));
     }
+
+    @Override
+    public Post getPost(Long id) {
+        return postRepository.findByIdAndDeleteYnFalseAndCompleteYnTrue(id)
+                .orElseThrow(() -> new PostNotFoundException
+                        (String.format(POST_NOT_FOUND_EXCEPTION_MESSAGE, id)));
+    }
 }

@@ -1,6 +1,8 @@
 package com.bgaebalja.blogbackend.post.controller;
 
 import com.bgaebalja.blogbackend.post.domain.CompletePostRequest;
+import com.bgaebalja.blogbackend.post.domain.GetPostResponse;
+import com.bgaebalja.blogbackend.post.domain.Post;
 import com.bgaebalja.blogbackend.post.domain.RegisterPostRequest;
 import com.bgaebalja.blogbackend.post.service.PostService;
 import com.bgaebalja.blogbackend.util.FormatValidator;
@@ -10,12 +12,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+import static com.bgaebalja.blogbackend.util.ApiConstant.ID_EXAMPLE;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
@@ -35,6 +39,10 @@ public class PostController {
             = "게시글 ID와 게시글 내용을 입력해 게시글을 작성 완료할 수 있습니다.";
     private static final String COMPLETE_POST_FORM = "게시글 작성 완료 양식";
 
+    private static final String GET_POST = "게시글 조회";
+    private static final String GET_POST_DESCRIPTION = "게시글 ID를 입력해 게시글을 조회할 수 있습니다.";
+    public static final String POST_ID = "게시글 ID";
+
     @Operation(summary = REGISTER_POST, description = REGISTER_POST_DESCRIPTION)
     @PostMapping()
     public ResponseEntity<Void> registerPost(
@@ -43,17 +51,6 @@ public class PostController {
         FormatValidator.validateEmail(registerPostRequest.getEmail());
 
         return buildResponse(postService.createPost(registerPostRequest));
-    }
-
-    @Operation(summary = COMPLETE_POST, description = COMPLETE_POST_DESCRIPTION)
-    @PatchMapping()
-    public ResponseEntity<Void> completePost(
-            @Valid @RequestBody @Parameter(description = COMPLETE_POST_FORM) CompletePostRequest completePostRequest
-    ) {
-        FormatValidator.validateId(completePostRequest.getId());
-        postService.completePost(completePostRequest);
-
-        return ResponseEntity.status(CREATED).build();
     }
 
     private ResponseEntity<Void> buildResponse(Long id) {
@@ -67,5 +64,26 @@ public class PostController {
         headers.setLocation(location);
 
         return ResponseEntity.status(CREATED).headers(headers).build();
+    }
+
+    @Operation(summary = COMPLETE_POST, description = COMPLETE_POST_DESCRIPTION)
+    @PatchMapping()
+    public ResponseEntity<Void> completePost(
+            @Valid @RequestBody @Parameter(description = COMPLETE_POST_FORM) CompletePostRequest completePostRequest
+    ) {
+        FormatValidator.validateId(completePostRequest.getId());
+        postService.completePost(completePostRequest);
+
+        return ResponseEntity.status(CREATED).build();
+    }
+
+    @Operation(summary = GET_POST, description = GET_POST_DESCRIPTION)
+    @GetMapping("/{id}")
+    public ResponseEntity<GetPostResponse> getPost
+            (@PathVariable("id") @Parameter(description = POST_ID, example = ID_EXAMPLE) String id) {
+        FormatValidator.validateId(id);
+        Post post = postService.getPost(Long.parseLong(id));
+
+        return ResponseEntity.status(HttpStatus.OK).body(GetPostResponse.from(post));
     }
 }
