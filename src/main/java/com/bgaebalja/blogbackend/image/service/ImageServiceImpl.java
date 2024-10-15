@@ -2,8 +2,8 @@ package com.bgaebalja.blogbackend.image.service;
 
 import com.bgaebalja.blogbackend.image.domain.AddImageRequest;
 import com.bgaebalja.blogbackend.image.domain.Image;
+import com.bgaebalja.blogbackend.image.domain.RepresentativeImagesRequest;
 import com.bgaebalja.blogbackend.image.domain.TargetType;
-import com.bgaebalja.blogbackend.image.exception.ImageNotFoundException;
 import com.bgaebalja.blogbackend.image.exception.S3UploadFailedException;
 import com.bgaebalja.blogbackend.image.repository.ImageRepository;
 import com.bgaebalja.blogbackend.util.FormatConverter;
@@ -11,7 +11,6 @@ import com.bgaebalja.blogbackend.util.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,11 +21,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
-import static com.bgaebalja.blogbackend.image.exception.ExceptionMessage.IMAGE_NOT_FOUND_EXCEPTION_MESSAGE;
 import static com.bgaebalja.blogbackend.image.exception.ExceptionMessage.S3_UPLOAD_FAILED_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +58,7 @@ public class ImageServiceImpl implements ImageService {
         TargetType targetType = FormatConverter.parseToTargetType(addImageRequest.getTargetType());
         Long targetId = FormatConverter.parseToLong(addImageRequest.getTargetId());
 
-        List<Image> existingImages = imageRepository.findByTargetTypeAndTargetIdAndDeleteYnFalse(targetType, targetId);
+        List<Image> existingImages = imageRepository.findByTargetTypeAndTargetIdAndDeleteYnFalseOrderByCreatedAtDesc(targetType, targetId);
         boolean isRepresentativeImageExistent = FormatValidator.hasValue(existingImages);
         Image image = Image.of(
                 targetType, targetId, uploadToS3(imageToUpload, targetType, targetId), !isRepresentativeImageExistent
@@ -99,13 +99,31 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 10)
-    @Cacheable(key = GET_IMAGE_KEY, condition = GET_KEY_CONDITION, value = CACHE_VALUE)
     public List<Image> getImages(TargetType targetType, Long targetId) {
-        return imageRepository.findByTargetTypeAndTargetIdAndDeleteYnFalse(targetType, targetId);
+        return imageRepository.findByTargetTypeAndTargetIdAndDeleteYnFalseOrderByCreatedAtDesc(targetType, targetId);
     }
 
-    private Image getImage(Long id) {
-        return imageRepository.findByIdAndDeleteYnFalse(id)
-                .orElseThrow(() -> new ImageNotFoundException(String.format(IMAGE_NOT_FOUND_EXCEPTION_MESSAGE, id)));
+    @Override
+    @Transactional(isolation = REPEATABLE_READ, readOnly = true, timeout = 20)
+    public List<Image> getRepresentativeImages(RepresentativeImagesRequest representativeImagesRequest) {
+        List<Image> images = new ArrayList<>();
+        TargetType targetType = representativeImagesRequest.getTargetType();
+
+        for (int i = 0; i < representativeImagesRequest.size(); i++) {
+            Long targetId = representativeImagesRequest.get(i);
+            images.add(
+                    imageRepository
+                            .findByTargetTypeAndTargetIdAndRepresentativeYnTrueAndDeleteYnFalse(targetType, targetId)
+                            .orElse(
+                                    imageRepository
+                                            .findFirstByTargetTypeAndTargetIdAndDeleteYnFalseOrderByCreatedAt(
+                                                    targetType, targetId
+                                            )
+                                            .orElse(Image.of(targetType, targetId, "https://ddipddipddip.s3.ap-northeast-2.amazonaws.com/product/10/1726398668465_DDIP+(3).png", false))
+                            )
+            );
+        }
+
+        return images;
     }
 }

@@ -11,12 +11,15 @@ import com.bgaebalja.blogbackend.user.repository.UserRepository;
 import com.bgaebalja.blogbackend.util.FormatConverter;
 import com.bgaebalja.blogbackend.util.FormatValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.bgaebalja.blogbackend.exception.ExceptionMessage.USER_NOT_FOUND_EXCEPTION_MESSAGE;
 import static com.bgaebalja.blogbackend.post.exception.ExceptionMessage.POST_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Isolation.READ_UNCOMMITTED;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, timeout = 20)
     public void completePost(CompletePostRequest completePostRequest) {
         Post temporalPost = getTemporalPost(FormatConverter.parseToLong(completePostRequest.getId()));
         temporalPost.complete(completePostRequest.getContent());
@@ -52,9 +56,21 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(isolation = READ_UNCOMMITTED, readOnly = true, timeout = 10)
     public Post getPost(Long id) {
         return postRepository.findByIdAndDeleteYnFalseAndCompleteYnTrue(id)
                 .orElseThrow(() -> new PostNotFoundException
                         (String.format(POST_NOT_FOUND_EXCEPTION_MESSAGE, id)));
+    }
+
+    @Override
+    @Transactional(isolation = READ_UNCOMMITTED, readOnly = true, timeout = 30)
+    public Page<Post> getPosts(Pageable pageable, String email) {
+        Users user = userRepository.findByEmailAndDeleteYn(email, false);
+        if (!FormatValidator.hasValue(user)) {
+            throw new UserNotFoundException(String.format(USER_NOT_FOUND_EXCEPTION_MESSAGE, email));
+        }
+
+        return postRepository.findByWriterIdAndDeleteYnFalseAndCompleteYnTrue(user.getId(), pageable);
     }
 }
