@@ -43,11 +43,8 @@ public class Comment extends BaseGeneralEntity {
         this.parent = parent;
     }
 
-    public static Comment modifyContent(RegisterCommentRequest registerCommentRequest) {
-        return Comment.builder()
-                .content(Content.of(registerCommentRequest.getContent()))
-
-                .build();
+    public void modifyContent(RegisterCommentRequest registerCommentRequest) {
+        this.content = Content.of(registerCommentRequest.getContent());
     }
 
     public static Comment from(RegisterCommentRequest registerCommentRequest, Users user, Post post){
