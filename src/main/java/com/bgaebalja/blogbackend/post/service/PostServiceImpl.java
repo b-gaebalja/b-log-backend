@@ -1,5 +1,6 @@
 package com.bgaebalja.blogbackend.post.service;
 
+import com.bgaebalja.blogbackend.exception.UserNotFoundException;
 import com.bgaebalja.blogbackend.post.domain.CompletePostRequest;
 import com.bgaebalja.blogbackend.post.domain.Post;
 import com.bgaebalja.blogbackend.post.domain.RegisterPostRequest;
@@ -8,10 +9,12 @@ import com.bgaebalja.blogbackend.post.repository.PostRepository;
 import com.bgaebalja.blogbackend.user.domain.Users;
 import com.bgaebalja.blogbackend.user.repository.UserRepository;
 import com.bgaebalja.blogbackend.util.FormatConverter;
+import com.bgaebalja.blogbackend.util.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.bgaebalja.blogbackend.exception.ExceptionMessage.USER_NOT_FOUND_EXCEPTION_MESSAGE;
 import static com.bgaebalja.blogbackend.post.exception.ExceptionMessage.POST_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -24,9 +27,12 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(isolation = READ_COMMITTED, timeout = 20)
     public Long createPost(RegisterPostRequest registerPostRequest) {
-        // TODO: 회원 엔티티가 null인 경우 처리
-        Users user = userRepository.findByEmailAndDeleteYn(registerPostRequest.getEmail(), false);
-        Post post = postRepository.save(Post.from(registerPostRequest, user));
+        String writerEmail = registerPostRequest.getEmail();
+        Users writer = userRepository.findByEmailAndDeleteYn(writerEmail, false);
+        if (!FormatValidator.hasValue(writer)) {
+            throw new UserNotFoundException(String.format(USER_NOT_FOUND_EXCEPTION_MESSAGE, writerEmail));
+        }
+        Post post = postRepository.save(Post.from(registerPostRequest, writer));
 
         return post.getId();
     }

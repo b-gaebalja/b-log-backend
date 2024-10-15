@@ -34,6 +34,10 @@ public class FormatValidator {
         return value != null && !value.isBlank();
     }
 
+    public static boolean hasValue(Object value) {
+        return value != null;
+    }
+
     public static boolean hasValue(List value) {
         return value != null && !value.isEmpty();
     }
