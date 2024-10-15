@@ -35,7 +35,7 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     public Long createComment(RegisterCommentRequest registerCommentRequest, Long postId) {
-        Users user = userRepository.findByEmail(registerCommentRequest.getEmail());
+        Users user = userRepository.findUsersByEmail(registerCommentRequest.getEmail());
         Post post = postRepository.findById(postId).get();
 
         Comment comment = commentRepository.save(Comment.from(registerCommentRequest, user, post));
@@ -46,9 +46,9 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public Long modifyComment(RegisterCommentRequest registerCommentRequest, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNoValueException(COMMENT_NOT_FOUND));
-        Comment updateComment = comment.modifyContent(registerCommentRequest);
+        comment.modifyContent(registerCommentRequest);
 
-        commentRepository.save(updateComment);
+        commentRepository.save(comment);
 
         return comment.getId();
     }
