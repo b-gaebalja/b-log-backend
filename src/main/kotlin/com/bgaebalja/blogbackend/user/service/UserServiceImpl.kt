@@ -22,13 +22,14 @@ class UserServiceImpl(
     private val userRepository: UserRepository,
 ) : UserService {
     @Transactional
-    override fun save(joinRequest: JoinRequest) {
+    override fun save(joinRequest: JoinRequest): Long? {
         val email = joinRequest.email
         val password = passwordEncoder.encode(joinRequest.password)
         val fullName = joinRequest.fullName
         val username = joinRequest.username
         Users.createUser(email, username, password, fullName).apply {
-            userRepository.save(this)
+            val saveUser = userRepository.save(this)
+            return saveUser.id
         }
     }
 
@@ -56,6 +57,7 @@ class UserServiceImpl(
                 this.userId,
                 this.username,
                 this.fullName,
+                "",
                 this.roles.map { it.role }.toMutableList()
             )
         }
