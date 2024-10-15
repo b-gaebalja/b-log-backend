@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum TargetType {
-    MEMBER("회원"),
+    USER("회원"),
     POST("게시글"),
     COMMENT("댓글"),
     ALARM("알림");

@@ -1,5 +1,7 @@
 package com.bgaebalja.blogbackend.user.service
 
+import com.bgaebalja.blogbackend.image.domain.TargetType.*
+import com.bgaebalja.blogbackend.image.service.ImageService
 import com.bgaebalja.blogbackend.user.domain.Users
 import com.bgaebalja.blogbackend.user.dto.DeleteUserRequest
 import com.bgaebalja.blogbackend.user.dto.JoinRequest
@@ -20,6 +22,7 @@ import reactor.core.publisher.Mono
 class UserServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
+    private val imageService: ImageService
 ) : UserService {
     @Transactional
     override fun save(joinRequest: JoinRequest): Long? {
@@ -50,6 +53,11 @@ class UserServiceImpl(
     override fun findUserWithRole(email: String): UserDto? {
         userRepository.findByEmailAndDeleteYn(email,false) ?: return null
         userRepository.findUserWithRole(email).apply {
+            val image = imageService.getImages(USER, this.id).ifEmpty { null }
+            val imageUrl = when (image){
+                null -> ""
+                else -> image[0].s3Url
+            }
             return UserDto(
                 this.id!!,
                 this.email,
@@ -57,7 +65,7 @@ class UserServiceImpl(
                 this.userId,
                 this.username,
                 this.fullName,
-                "",
+                imageUrl,
                 this.roles.map { it.role }.toMutableList()
             )
         }
