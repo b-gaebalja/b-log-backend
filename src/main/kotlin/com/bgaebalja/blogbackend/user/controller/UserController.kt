@@ -1,19 +1,16 @@
 package com.bgaebalja.blogbackend.user.controller
 
-import com.bgaebalja.blogbackend.user.dto.DeleteUserRequest
-import com.bgaebalja.blogbackend.user.dto.JoinRequest
-import com.bgaebalja.blogbackend.user.dto.UserDto
-import com.bgaebalja.blogbackend.user.dto.UserRequest
+import com.bgaebalja.blogbackend.user.dto.*
 import com.bgaebalja.blogbackend.user.exception.DeleteUserFailException
 import com.bgaebalja.blogbackend.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.Parameters
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
@@ -37,9 +34,15 @@ class UserController(
         @Parameter(description = JOIN_USER_FORM)
         @ModelAttribute joinRequest: JoinRequest
     )
-            : ResponseEntity<String> {
-        userService.save(joinRequest)
-        return ResponseEntity.status(CREATED).body("SUCCESS")
+            : ResponseEntity<Map<String,String>> {
+        return when (userService.findUserByEmail(joinRequest.email)) {
+            true -> ResponseEntity.status(OK).body(mapOf("FAIL" to "ALREADY_USER"))
+            false -> {
+                userService.save(joinRequest)
+                return ResponseEntity.status(CREATED).body(mapOf("SUCCESS" to "JOIN"))
+            }
+        }
+
     }
 
     @ApiResponse(
@@ -57,6 +60,32 @@ class UserController(
             return ResponseEntity.status(OK).body(mapOf("ERROR" to "NOT FOUND"))
         }
         return ResponseEntity.status(OK).body(userDto)
+    }
+
+    @PutMapping("{userId}/username")
+    fun editUsername(
+        @PathVariable("userId") userId: String,
+        @RequestBody usernameRequest: UsernameRequest
+    )
+            : ResponseEntity<String> {
+        userService.editUsername(userId, usernameRequest.username)
+        return ResponseEntity.status(OK).body("EDIT_USERNAME_SUCCESS")
+    }
+
+    @PutMapping("{userId}/password")
+    fun editPassword(
+        @PathVariable("userId") userId: String,
+        @RequestBody passwordRequest: PasswordRequest
+    )
+            : ResponseEntity<String> {
+        userService.editPassword(userId, passwordRequest.password)
+        return ResponseEntity.status(OK).body("EDIT_PASSWORD_SUCCESS")
+    }
+
+    @PostMapping("/reuser")
+    fun rejoinUser(@ModelAttribute joinRequest: JoinRequest): ResponseEntity<Map<String,String>>{
+        userService.editUndelete(joinRequest)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(mapOf("SUCCESS" to "REJOIN"))
     }
 
     @ApiResponse(

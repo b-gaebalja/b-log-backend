@@ -7,4 +7,6 @@ interface UserRepository: JpaRepository<Users, Long>, UserRepositoryCustom {
     fun findByEmailAndDeleteYn(email: String, deleteYn: Boolean): Users?
 
     fun findOneByUserId(userId: String): Users?
+
+    fun findUsersByEmail(email: String): Users?
 }
