@@ -1,6 +1,7 @@
 package com.bgaebalja.blogbackend.user.service
 
 import com.bgaebalja.blogbackend.user.domain.Users
+import com.bgaebalja.blogbackend.user.dto.DeleteUserRequest
 import com.bgaebalja.blogbackend.user.dto.JoinRequest
 import com.bgaebalja.blogbackend.user.dto.UserDto
 import com.bgaebalja.blogbackend.user.repository.UserRepository
@@ -46,7 +47,7 @@ class UserServiceImpl(
     }
 
     override fun findUserWithRole(email: String): UserDto? {
-        userRepository.findByEmail(email) ?: return null
+        userRepository.findByEmailAndDeleteYn(email,false) ?: return null
         userRepository.findUserWithRole(email).apply {
             return UserDto(
                 this.id!!,
@@ -60,5 +61,27 @@ class UserServiceImpl(
         }
     }
 
+    override fun findUserByUserId(userId: String): Users? {
+        return userRepository.findOneByUserId(userId)
+            ?: throw IllegalStateException("User not found")
+    }
+
+
+    override fun deleteUserMatch(userId: String, deleteUserRequest: DeleteUserRequest): Boolean {
+        val user: Users =
+            userRepository.findOneByUserId(userId) ?: throw IllegalStateException("User not found")
+        val isMatch = passwordEncoder.matches(deleteUserRequest.password, user.password)
+        return if (isMatch) {
+            deleteUserRequest.email == user.email
+        } else false
+    }
+
+    @Transactional
+    override fun deleteUserByUserId(userId: String) {
+        userRepository.findOneByUserId(userId)!!
+            .apply {
+                Users.deleteUser(this)
+            }
+    }
 
 }

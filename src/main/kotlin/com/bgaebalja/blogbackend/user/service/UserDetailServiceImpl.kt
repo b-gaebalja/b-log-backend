@@ -15,7 +15,7 @@ class UserDetailServiceImpl(
         if (username == null) {
             throw UsernameNotFoundException("Username not found")
         }
-        userRepository.findByEmail(username) ?: throw UsernameNotFoundException("User not found")
+        userRepository.findByEmailAndDeleteYn(username,false) ?: throw UsernameNotFoundException("User not found")
         userRepository.findUserWithRole(username).apply {
             return UserDto(
                 this.id!!, this.email, this.password, this.userId, this.username, this.fullName,
