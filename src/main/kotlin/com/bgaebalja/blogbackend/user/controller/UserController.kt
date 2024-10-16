@@ -38,8 +38,8 @@ class UserController(
         return when (userService.findUserByEmail(joinRequest.email)) {
             true -> ResponseEntity.status(OK).body(mapOf("FAIL" to "ALREADY_USER"))
             false -> {
-                userService.save(joinRequest)
-                return ResponseEntity.status(CREATED).body(mapOf("SUCCESS" to "JOIN"))
+                val userId = userService.save(joinRequest)
+                return ResponseEntity.status(CREATED).body(mapOf("SUCCESS" to "$userId"))
             }
         }
 
@@ -62,7 +62,7 @@ class UserController(
         return ResponseEntity.status(OK).body(userDto)
     }
 
-    @PutMapping("{userId}/username")
+    @PatchMapping("{userId}/username")
     fun editUsername(
         @PathVariable("userId") userId: String,
         @RequestBody usernameRequest: UsernameRequest
@@ -72,7 +72,7 @@ class UserController(
         return ResponseEntity.status(OK).body("EDIT_USERNAME_SUCCESS")
     }
 
-    @PutMapping("{userId}/password")
+    @PatchMapping("{userId}/password")
     fun editPassword(
         @PathVariable("userId") userId: String,
         @RequestBody passwordRequest: PasswordRequest

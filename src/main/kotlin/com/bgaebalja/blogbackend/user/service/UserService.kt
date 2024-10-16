@@ -9,7 +9,7 @@ import reactor.core.Disposable
 import reactor.core.publisher.Mono
 
 interface UserService {
-    fun save(joinRequest: JoinRequest)
+    fun save(joinRequest: JoinRequest): Long?
 
     fun getKakaoUser(accessToken: String): Mono<String>
 
