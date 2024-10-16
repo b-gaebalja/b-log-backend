@@ -1,3 +1,11 @@
+server:
+  url: ${EC2_IP_FOR_DDIP}
+  port: 443
+  ssl:
+    key-store: file:/app/keystore.p12
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    keyStoreType: PKCS12
+    keyAlias: tomcat
 spring:
   application:
     name: b-log-backend
