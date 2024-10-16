@@ -66,6 +66,10 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(isolation = READ_UNCOMMITTED, readOnly = true, timeout = 30)
     public Page<Post> getPosts(Pageable pageable, String email) {
+        if (!FormatValidator.hasValue(email)) {
+            return postRepository.findByDeleteYnFalseAndCompleteYnTrue(pageable);
+        }
+
         Users user = userRepository.findByEmailAndDeleteYn(email, false);
         if (!FormatValidator.hasValue(user)) {
             throw new UserNotFoundException(String.format(USER_NOT_FOUND_EXCEPTION_MESSAGE, email));
