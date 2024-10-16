@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -100,6 +101,25 @@ public class PostController {
         Post post = postService.getPost(Long.parseLong(id));
 
         return ResponseEntity.status(HttpStatus.OK).body(GetPostResponse.from(post));
+    }
+
+    @Operation(summary = GET_ALL_POSTS, description = GET_ALL_POSTS_DESCRIPTION)
+    @GetMapping()
+    public ResponseEntity<GetPostsResponse> getAllPosts
+            (@RequestParam(defaultValue = TRUE)
+             @Schema(description = IS_PAGINATION_USED, example = TRUE) String paged,
+             @RequestParam(defaultValue = ZERO)
+             @Schema(description = CURRENT_PAGE_NUMBER, example = ZERO) String pageNumber,
+             @RequestParam(defaultValue = TWELVE)
+             @Schema(description = NUMBER_OF_ITEMS_PER_PAGE, example = TWELVE) String size,
+             @RequestParam(defaultValue = ORDER_BY_CREATED_AT_DESCENDING)
+             @Schema(description = SORTING_METHOD, example = ORDER_BY_CREATED_AT_DESCENDING) String sort) {
+        Pageable pageable = PageableGenerator.createPageable(paged, pageNumber, size, sort);
+        Page<Post> posts = postService.getPosts(pageable, null);
+        List<Image> representativeImages
+                = imageService.getRepresentativeImages(RepresentativeImagesRequest.from(posts.getContent()));
+
+        return ResponseEntity.status(HttpStatus.OK).body(GetPostsResponse.from(posts, representativeImages));
     }
 
     @Operation(summary = GET_MY_POSTS, description = GET_MY_POSTS_DESCRIPTION)
