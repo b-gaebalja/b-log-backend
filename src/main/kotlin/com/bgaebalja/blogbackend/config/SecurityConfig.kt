@@ -3,6 +3,7 @@ package com.bgaebalja.blogbackend.config
 import com.bgaebalja.blogbackend.security.filter.JwtFilter
 import com.bgaebalja.blogbackend.security.handler.LoginFailureHandler
 import com.bgaebalja.blogbackend.security.handler.LoginSuccessHandler
+import com.bgaebalja.blogbackend.user.repository.UserRepository
 import com.bgaebalja.blogbackend.util.JwtUtil
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,7 +25,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableMethodSecurity
 class SecurityConfig(
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val userRepository: UserRepository
 ) {
 
     @Bean
@@ -36,7 +38,7 @@ class SecurityConfig(
             it.loginPage("/users/login")
             it.successHandler(LoginSuccessHandler(jwtUtil))
             it.failureHandler(LoginFailureHandler()) }
-        http.addFilterBefore(JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(JwtFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 

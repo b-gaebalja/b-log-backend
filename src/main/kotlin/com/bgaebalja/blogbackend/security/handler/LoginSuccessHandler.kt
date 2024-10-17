@@ -18,8 +18,6 @@ class LoginSuccessHandler(private val jwtUtil: JwtUtil): AuthenticationSuccessHa
     ) {
         val objectMapper = ObjectMapper()
         val user: UserDto = authentication?.principal as UserDto
-        println("로그인 유저 값")
-        println(user)
         val claims = user.getClaims()
         val accessToken = jwtUtil.generateToken(claims, 10L)
         val refreshToken = jwtUtil.generateToken(claims, 60 * 24)
