@@ -8,12 +8,10 @@ import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -46,17 +44,11 @@ class JwtFilter(
         filterChain: FilterChain
     ) {
         val objectMapper = ObjectMapper()
+        try {
         val authorizationHeader = request.getHeader(AUTHORIZATION)
-            ?: throw JwtException("Authorization header is missing")
         if (authorizationHeader.startsWith("Bearer ")) {
             val accessToken = authorizationHeader.substring(7)
-            val claims = jwtUtil.validateJwtToken(accessToken) ?: run {
-                val message =
-                    objectMapper.writeValueAsString(mapOf("ERROR" to "ERROR_ACCESS_TOKEN"))
-                response.contentType = APPLICATION_JSON_VALUE
-                response.writer.write(message)
-                return
-            }
+            val claims = jwtUtil.validateJwtToken(accessToken)?: throw JwtException("Invalid access token")
             val id = claims["id"] as Int
             val email = claims["email"] as String
             val userId = claims["userId"] as String
@@ -71,6 +63,11 @@ class JwtFilter(
             SecurityContextHolder.getContext().authentication = authenticationToken
         }
         filterChain.doFilter(request, response)
+        }catch (e: Exception){
+            println("에러 $e.message")
+            response.contentType = APPLICATION_JSON_VALUE
+            response.writer.write(objectMapper.writeValueAsString(mapOf("ERROR" to "ERROR_ACCESS_TOKEN")))
+        }
     }
 }
 

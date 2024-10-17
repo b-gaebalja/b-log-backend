@@ -1,7 +1,7 @@
 package com.bgaebalja.blogbackend.user.controller
 
+import com.bgaebalja.blogbackend.exception.JwtCustomException
 import com.bgaebalja.blogbackend.user.dto.RefreshTokenRequest
-import com.bgaebalja.blogbackend.user.exception.JwtCustomException
 import com.bgaebalja.blogbackend.util.JwtUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -44,7 +44,7 @@ class RefreshController(private val jwtUtil: JwtUtil) {
         }
 
         val claims = jwtUtil.validateJwtToken(refreshToken)
-        val newAccessToken = jwtUtil.generateToken(claims, 10)
+        val newAccessToken = jwtUtil.generateToken(claims, 10L)
         val newRefreshToken = when (checkTime((claims?.get("exp").toString().toLong()))) {
             true -> jwtUtil.generateToken(claims, 60 * 24)
             false -> refreshToken
