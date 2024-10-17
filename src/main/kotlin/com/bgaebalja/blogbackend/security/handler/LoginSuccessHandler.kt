@@ -19,10 +19,10 @@ class LoginSuccessHandler(private val jwtUtil: JwtUtil): AuthenticationSuccessHa
         val objectMapper = ObjectMapper()
         val user: UserDto = authentication?.principal as UserDto
         val claims = user.getClaims()
-        val accessToken = jwtUtil.generateToken(claims, 10L)
+        val accessToken = jwtUtil.generateToken(claims, 1L)
         val refreshToken = jwtUtil.generateToken(claims, 60 * 24)
-        claims["access_token"] = accessToken
-        claims["refresh_token"] = refreshToken
+        claims["accessToken"] = accessToken
+        claims["refreshToken"] = refreshToken
         response?.contentType = "application/json;charset=UTF-8"
         response?.writer?.write(objectMapper.writeValueAsString(claims))
     }

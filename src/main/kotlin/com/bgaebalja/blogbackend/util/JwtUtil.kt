@@ -1,6 +1,6 @@
 package com.bgaebalja.blogbackend.util
 
-import com.bgaebalja.blogbackend.user.exception.JwtCustomException
+import com.bgaebalja.blogbackend.exception.JwtCustomException
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value

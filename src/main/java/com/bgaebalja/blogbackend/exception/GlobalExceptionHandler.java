@@ -1,9 +1,16 @@
 package com.bgaebalja.blogbackend.exception;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+import static org.springframework.http.HttpStatus.resolve;
 
 import com.bgaebalja.blogbackend.user.exception.DeleteUserFailException;
-import com.bgaebalja.blogbackend.user.exception.JwtCustomException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,7 +28,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -180,10 +186,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
+
     @ExceptionHandler(JwtCustomException.class)
     private ResponseEntity<?> handleJwtCustomException(JwtCustomException e) {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR.value()).body(Map.of("ERROR",
+        return ResponseEntity.ok().body(Map.of("ERROR",
             Objects.requireNonNull(e.getMessage())));
+    }
+
+    @ExceptionHandler(JwtException.class)
+    private ResponseEntity<?> handleJwtException(JwtException e) {
+        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 }
