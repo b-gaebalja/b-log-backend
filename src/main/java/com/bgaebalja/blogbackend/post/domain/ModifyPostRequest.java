@@ -8,7 +8,7 @@ import static com.bgaebalja.blogbackend.post.util.ApiConstant.POST_ID_VALUE;
 import static com.bgaebalja.blogbackend.util.ApiConstant.ID_EXAMPLE;
 
 @Getter
-public class CompletePostRequest {
+public class ModifyPostRequest {
     private static final String CONTENT_VALUE = "게시글 내용";
     private static final String CONTENT_EXAMPLE = "첫 번째 게시글입니다.";
     private static final String CONTENT_NO_VALUE_EXCEPTION_MESSAGE = "게시글 내용을 입력하세요.";

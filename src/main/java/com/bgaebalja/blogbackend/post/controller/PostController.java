@@ -16,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,6 +26,7 @@ import java.util.List;
 import static com.bgaebalja.blogbackend.post.util.PaginationConstant.*;
 import static com.bgaebalja.blogbackend.util.ApiConstant.*;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("/posts")
@@ -59,6 +58,11 @@ public class PostController {
     private static final String GET_MY_POSTS_DESCRIPTION = "자신의 게시글 목록을 조회할 수 있습니다." +
             "\n페이징 옵션을 선택할 수 있습니다.";
 
+    private static final String MODIFY_POST = "게시글 수정";
+    private static final String MODIFY_POST_DESCRIPTION
+            = "게시글 ID와 게시글 내용을 입력해 게시글을 수정할 수 있습니다.";
+    private static final String MODIFY_POST_FORM = "게시글 수정 양식";
+
     @Operation(summary = REGISTER_POST, description = REGISTER_POST_DESCRIPTION)
     @PostMapping()
     public ResponseEntity<Void> registerPost(
@@ -85,10 +89,10 @@ public class PostController {
     @Operation(summary = COMPLETE_POST, description = COMPLETE_POST_DESCRIPTION)
     @PatchMapping()
     public ResponseEntity<Void> completePost(
-            @Valid @RequestBody @Parameter(description = COMPLETE_POST_FORM) CompletePostRequest completePostRequest
+            @Valid @RequestBody @Parameter(description = COMPLETE_POST_FORM) ModifyPostRequest modifyPostRequest
     ) {
-        FormatValidator.validateId(completePostRequest.getId());
-        postService.completePost(completePostRequest);
+        FormatValidator.validateId(modifyPostRequest.getId());
+        postService.completePost(modifyPostRequest);
 
         return ResponseEntity.status(CREATED).build();
     }
@@ -100,7 +104,7 @@ public class PostController {
         FormatValidator.validateId(id);
         Post post = postService.getPost(Long.parseLong(id));
 
-        return ResponseEntity.status(HttpStatus.OK).body(GetPostResponse.from(post));
+        return ResponseEntity.status(OK).body(GetPostResponse.from(post));
     }
 
     @Operation(summary = GET_ALL_POSTS, description = GET_ALL_POSTS_DESCRIPTION)
@@ -119,7 +123,7 @@ public class PostController {
         List<Image> representativeImages
                 = imageService.getRepresentativeImages(RepresentativeImagesRequest.from(posts.getContent()));
 
-        return ResponseEntity.status(HttpStatus.OK).body(GetPostsResponse.from(posts, representativeImages));
+        return ResponseEntity.status(OK).body(GetPostsResponse.from(posts, representativeImages));
     }
 
     @Operation(summary = GET_MY_POSTS, description = GET_MY_POSTS_DESCRIPTION)
@@ -141,6 +145,17 @@ public class PostController {
         List<Image> representativeImages
                 = imageService.getRepresentativeImages(RepresentativeImagesRequest.from(posts.getContent()));
 
-        return ResponseEntity.status(HttpStatus.OK).body(GetPostsResponse.from(posts, representativeImages));
+        return ResponseEntity.status(OK).body(GetPostsResponse.from(posts, representativeImages));
+    }
+
+    @Operation(summary = MODIFY_POST, description = MODIFY_POST_DESCRIPTION)
+    @PatchMapping("/modify")
+    public ResponseEntity<Void> modifyPost(
+            @Valid @RequestBody @Parameter(description = MODIFY_POST_FORM) ModifyPostRequest modifyPostRequest
+    ) {
+        FormatValidator.validateId(modifyPostRequest.getId());
+        postService.modifyPost(modifyPostRequest);
+
+        return ResponseEntity.status(OK).build();
     }
 }

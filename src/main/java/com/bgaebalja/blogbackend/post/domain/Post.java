@@ -44,4 +44,8 @@ public class Post extends BaseGeneralEntity {
         this.content = Content.of(content);
         completeYn = true;
     }
+
+    public void update(String content) {
+        this.content = Content.of(content);
+    }
 }
