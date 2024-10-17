@@ -1,22 +1,28 @@
 package com.bgaebalja.blogbackend.security.filter
 
 import com.bgaebalja.blogbackend.user.dto.UserDto
+import com.bgaebalja.blogbackend.user.repository.UserRepository
 import com.bgaebalja.blogbackend.util.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class JwtFilter(private val jwtUtil: JwtUtil) : OncePerRequestFilter() {
+class JwtFilter(
+    private val jwtUtil: JwtUtil,
+    private val userRepository: UserRepository
+    ) : OncePerRequestFilter() {
     private fun validatePath(path: String, pathUri: String) = path.startsWith(pathUri)
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
@@ -51,15 +57,15 @@ class JwtFilter(private val jwtUtil: JwtUtil) : OncePerRequestFilter() {
                 response.writer.write(message)
                 return
             }
-            val id = claims["id"] as Long
+            val id = claims["id"] as Int
             val email = claims["email"] as String
             val userId = claims["userId"] as String
             val username = claims["username"] as String
             val fullName = claims["fullName"] as String
             val imageUrl = claims["imageUrl"] as String
             val roles = claims["roles"] as MutableList<String?>
-            val password = claims["password"] as String
-            val userDto = UserDto(id, userId, email, username, fullName, password, imageUrl, roles)
+            val password = userRepository.findUsersByEmail(email)?.password?: throw IllegalArgumentException("Email does not match email")
+            val userDto = UserDto(id.toLong(), userId, email, username, fullName, password, imageUrl, roles)
             val authenticationToken =
                 UsernamePasswordAuthenticationToken(userDto, password, userDto.authorities)
             SecurityContextHolder.getContext().authentication = authenticationToken
