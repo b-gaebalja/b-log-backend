@@ -10,7 +10,6 @@ import com.bgaebalja.blogbackend.util.FormatConverter;
 import com.bgaebalja.blogbackend.util.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,23 +35,14 @@ public class ImageServiceImpl implements ImageService {
 
     private static final String TLS_HTTP_PROTOCOL = "https://";
     private static final String S3_ADDRESS = "s3.amazonaws.com";
-    private static final String CACHE_VALUE = "images";
-
-    private static final String CREATE_IMAGE_KEY = "#addImagesRequest.targetId";
-    private static final String CREATE_KEY_CONDITION = "#addImagesRequest != null && #addImagesRequest.targetId != null";
-
-    private static final String GET_IMAGE_KEY = "#targetId";
-    private static final String GET_KEY_CONDITION = "#targetId != null";
-
-    private static final String DELETE_IMAGE_KEY = "#id";
-    private static final String DELETE_KEY_CONDITION = "#id != null";
+    private static final String DEFAULT_IMAGE_URL
+            = "https://ddipddipddip.s3.amazonaws.com/post/1817/1729057414653_-2024-07-02-111008.png";
 
     @Value("${cloud.aws.s3.bucket-name}")
     private String s3BucketName;
 
     @Override
     @Transactional(isolation = READ_COMMITTED, timeout = 10)
-    @CachePut(key = CREATE_IMAGE_KEY, condition = CREATE_KEY_CONDITION, value = CACHE_VALUE)
     public Image createImage(AddImageRequest addImageRequest) {
         MultipartFile imageToUpload = addImageRequest.getImage();
         TargetType targetType = FormatConverter.parseToTargetType(addImageRequest.getTargetType());
@@ -119,7 +109,7 @@ public class ImageServiceImpl implements ImageService {
                                             .findFirstByTargetTypeAndTargetIdAndDeleteYnFalseOrderByCreatedAt(
                                                     targetType, targetId
                                             )
-                                            .orElse(Image.of(targetType, targetId, "https://ddipddipddip.s3.ap-northeast-2.amazonaws.com/product/10/1726398668465_DDIP+(3).png", false))
+                                            .orElse(Image.of(targetType, targetId, DEFAULT_IMAGE_URL, false))
                             )
             );
         }

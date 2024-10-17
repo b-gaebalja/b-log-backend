@@ -1,7 +1,7 @@
 package com.bgaebalja.blogbackend.post.service;
 
 import com.bgaebalja.blogbackend.exception.UserNotFoundException;
-import com.bgaebalja.blogbackend.post.domain.CompletePostRequest;
+import com.bgaebalja.blogbackend.post.domain.ModifyPostRequest;
 import com.bgaebalja.blogbackend.post.domain.Post;
 import com.bgaebalja.blogbackend.post.domain.RegisterPostRequest;
 import com.bgaebalja.blogbackend.post.exception.PostNotFoundException;
@@ -42,11 +42,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(isolation = READ_COMMITTED, timeout = 20)
-    public void completePost(CompletePostRequest completePostRequest) {
-        Post temporalPost = getTemporalPost(FormatConverter.parseToLong(completePostRequest.getId()));
-        temporalPost.complete(completePostRequest.getContent());
-
-        postRepository.save(temporalPost);
+    public void completePost(ModifyPostRequest modifyPostRequest) {
+        Post temporalPost = getTemporalPost(FormatConverter.parseToLong(modifyPostRequest.getId()));
+        temporalPost.complete(modifyPostRequest.getContent());
     }
 
     private Post getTemporalPost(Long id) {
@@ -76,5 +74,12 @@ public class PostServiceImpl implements PostService {
         }
 
         return postRepository.findByWriterIdAndDeleteYnFalseAndCompleteYnTrue(user.getId(), pageable);
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, timeout = 20)
+    public void modifyPost(ModifyPostRequest modifyPostRequest) {
+        Post post = getPost(FormatConverter.parseToLong(modifyPostRequest.getId()));
+        post.update(modifyPostRequest.getContent());
     }
 }
