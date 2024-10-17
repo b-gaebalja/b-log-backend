@@ -1,5 +1,7 @@
 package com.bgaebalja.blogbackend.exception;
 
+import static org.springframework.http.HttpStatus.*;
+
 import com.bgaebalja.blogbackend.user.exception.DeleteUserFailException;
 import com.bgaebalja.blogbackend.user.exception.JwtCustomException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -7,6 +9,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.Map;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +21,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -32,11 +37,11 @@ public class GlobalExceptionHandler {
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .statusCode(INTERNAL_SERVER_ERROR.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(NullPointerException.class)
@@ -45,11 +50,11 @@ public class GlobalExceptionHandler {
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .statusCode(INTERNAL_SERVER_ERROR.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -58,11 +63,11 @@ public class GlobalExceptionHandler {
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.NOT_FOUND.value())
+                .statusCode(NOT_FOUND.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -71,11 +76,11 @@ public class GlobalExceptionHandler {
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .statusCode(METHOD_NOT_ALLOWED.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -84,11 +89,11 @@ public class GlobalExceptionHandler {
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(FORBIDDEN.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -97,11 +102,11 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -110,11 +115,11 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -123,11 +128,11 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -136,10 +141,10 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                .statusCode(UNSUPPORTED_MEDIA_TYPE.value())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(MalformedJwtException.class)
@@ -147,10 +152,10 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
@@ -158,10 +163,10 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(DeleteUserFailException.class)
@@ -169,20 +174,16 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-            .statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+            .statusCode(NOT_IMPLEMENTED.value())
             .message(e.getMessage())
             .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return new ResponseEntity<>(errorResponse, resolve(errorResponse.getStatusCode()));
     }
 
     @ExceptionHandler(JwtCustomException.class)
-    private ResponseEntity<ErrorResponse> handleJwtCustomException(JwtCustomException e) {
+    private ResponseEntity<?> handleJwtCustomException(JwtCustomException e) {
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .message(e.getMessage())
-            .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR.value()).body(Map.of("ERROR",
+            Objects.requireNonNull(e.getMessage())));
     }
 }
