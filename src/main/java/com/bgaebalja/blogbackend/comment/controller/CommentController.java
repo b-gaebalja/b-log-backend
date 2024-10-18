@@ -6,7 +6,6 @@ import com.bgaebalja.blogbackend.comment.service.CommentService;
 import com.bgaebalja.blogbackend.util.FormatValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.Servlet;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -45,13 +44,13 @@ public class CommentController {
         return buildResponse(id);
     }
 
-    @PutMapping("/comments/{commentId}")
-    public ResponseEntity<Void> modifyComment(@PathVariable Long commentId,
+    @PutMapping("/comments/{id}")
+    public ResponseEntity<Void> modifyComment(@PathVariable Long id,
                                               @Valid @RequestBody RegisterCommentRequest registerCommentRequest){
         FormatValidator.validateEmail(registerCommentRequest.getEmail());
-        commentService.modifyComment(registerCommentRequest,commentId);
+        commentService.modifyComment(registerCommentRequest,id);
 
-        return buildResponse(commentId);
+        return buildResponse(id);
     }
 
     private ResponseEntity<Void> buildResponse(Long id) {
