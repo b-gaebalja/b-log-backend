@@ -6,6 +6,7 @@ import com.bgaebalja.blogbackend.post.domain.Post;
 import com.bgaebalja.blogbackend.user.domain.Users;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import static lombok.AccessLevel.PROTECTED;
 import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @NoArgsConstructor(access = PROTECTED)
+@Getter
 public class Comment extends BaseGeneralEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "writer_id")
