@@ -1,10 +1,10 @@
 package com.bgaebalja.blogbackend.notification.domain;
 
 import com.bgaebalja.blogbackend.audit.BaseGeneralEntity;
+import com.bgaebalja.blogbackend.image.domain.TargetType;
 import com.bgaebalja.blogbackend.post.domain.Content;
 import com.bgaebalja.blogbackend.user.domain.Users;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
