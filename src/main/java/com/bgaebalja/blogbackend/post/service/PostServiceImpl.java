@@ -82,4 +82,11 @@ public class PostServiceImpl implements PostService {
         Post post = getPost(FormatConverter.parseToLong(modifyPostRequest.getId()));
         post.update(modifyPostRequest.getContent());
     }
+
+    @Override
+    @Transactional(isolation = READ_UNCOMMITTED, timeout = 10)
+    public void deletePost(Long id) {
+        Post post = getPost(id);
+        post.delete();
+    }
 }
