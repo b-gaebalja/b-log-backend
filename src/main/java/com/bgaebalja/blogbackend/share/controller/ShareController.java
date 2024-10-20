@@ -1,16 +1,10 @@
 package com.bgaebalja.blogbackend.share.controller;
 
-import com.bgaebalja.blogbackend.image.domain.RepresentativeImagesRequest;
 import com.bgaebalja.blogbackend.image.service.ImageService;
-import com.bgaebalja.blogbackend.post.domain.GetPostsResponse;
-import com.bgaebalja.blogbackend.post.domain.Post;
-import com.bgaebalja.blogbackend.post.util.PageableGenerator;
+import com.bgaebalja.blogbackend.share.domain.ShareRequestDto;
 import com.bgaebalja.blogbackend.share.domain.Share;
 import com.bgaebalja.blogbackend.share.service.ShareService;
 import com.bgaebalja.blogbackend.util.FormatConverter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.bgaebalja.blogbackend.image.domain.TargetType.POST;
-import static com.bgaebalja.blogbackend.post.util.PaginationConstant.*;
-import static org.springframework.http.HttpStatus.OK;
 
 @Controller
 @RequestMapping("/sharePosts")
@@ -38,35 +28,19 @@ public class ShareController {
 
     //북마크하기
     @PostMapping("/{id}/shares")
-    public ResponseEntity<Void> share(@PathVariable("id") String postId) {
-        shareService.sharePost(FormatConverter.parseToLong(postId));
+    public ResponseEntity<Void> share(@PathVariable("id") String postId, @RequestBody ShareRequestDto requestDto) {
+        Long postIdLong = FormatConverter.parseToLong(postId);
+        Long sharerId = requestDto.getSharerId();
+        String url = requestDto.getUrl();
+
+        // shareService에서 필요한 로직을 추가
+        shareService.sharePost(postIdLong, sharerId, url); // 서비스 메서드에 sharerId와 url 전달
+
         return ResponseEntity.status(HttpStatus.CREATED).build(); // 201 Created
     }
 
-    //북마크 목록 가져오기
-//    @GetMapping("/list/{sharerId}")
-//    public ResponseEntity<GetPostsResponse> getSharedPosts(
-//            @PathVariable("sharerId") String sharerId,
-//            @RequestParam(defaultValue = TRUE)
-//            @Schema(description = IS_PAGINATION_USED, example = TRUE) String paged,
-//            @RequestParam(defaultValue = ZERO)
-//            @Schema(description = CURRENT_PAGE_NUMBER, example = ZERO) String pageNumber,
-//            @RequestParam(defaultValue = TWELVE)
-//            @Schema(description = NUMBER_OF_ITEMS_PER_PAGE, example = TWELVE) String size,
-//            @RequestParam(defaultValue = ORDER_BY_CREATED_AT_DESCENDING)
-//            @Schema(description = SORTING_METHOD, example = ORDER_BY_CREATED_AT_DESCENDING) String sort) {
-//        System.out.println("목록 가져오기 컨트롤러 진입 성공");
-//        Pageable pageable = PageableGenerator.createPageable(paged, pageNumber, size, sort);
-//        Page<Post> sharedPosts = shareService.getSharedPosts(pageable, FormatConverter.parseToLong(sharerId));
-//        GetPostsResponse getPostsResponse
-//                = GetPostsResponse.from(
-//                sharedPosts,
-//                imageService.getRepresentativeImages(RepresentativeImagesRequest.from(sharedPosts.getContent()))
-//        );
-//
-//        return ResponseEntity.status(OK).body(getPostsResponse); // 200 OK
-//    }
 
+    //북마크 목록 가져오기
     @GetMapping("/list/{sharerId}")
     public ResponseEntity<List<Long>> getSharedPosts(
             @PathVariable("sharerId") String sharerId) {

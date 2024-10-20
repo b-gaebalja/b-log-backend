@@ -29,12 +29,10 @@ public class ShareServiceImpl implements ShareService {
     private PostRepository postRepository; // PostRepository 추가
 
     @Override
-    public void sharePost(Long postId) {
+    public void sharePost(Long postId, Long sharerId, String url) {
         Post post = postService.getPost(postId);
         Long writerId = post.getWriter().getId(); // 포스트의 작성자 ID
         System.out.println("-------------------"+writerId+"----------------------");
-        Long sharerId = 10L;//getCurrentUserId(); // 현재 사용자의 ID 가져오기
-        String url = "http://localhost:5173/post/1819"; //postService.getPost().getId(); // 포스트의 URL
 
         Share share = new Share(postId, writerId, sharerId, url); // postId로 Share 생성
         shareRepository.save(share);
