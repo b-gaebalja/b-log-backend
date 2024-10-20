@@ -16,4 +16,6 @@ public interface PostService {
     Page<Post> getPosts(Pageable pageable, String email);
 
     void modifyPost(ModifyPostRequest modifyPostRequest);
+
+    void deletePost(Long id);
 }

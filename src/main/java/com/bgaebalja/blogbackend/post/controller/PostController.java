@@ -25,8 +25,7 @@ import java.util.List;
 
 import static com.bgaebalja.blogbackend.post.util.PaginationConstant.*;
 import static com.bgaebalja.blogbackend.util.ApiConstant.*;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/posts")
@@ -62,6 +61,9 @@ public class PostController {
     private static final String MODIFY_POST_DESCRIPTION
             = "게시글 ID와 게시글 내용을 입력해 게시글을 수정할 수 있습니다.";
     private static final String MODIFY_POST_FORM = "게시글 수정 양식";
+
+    private static final String DELETE_POST = "게시글 삭제";
+    private static final String DELETE_POST_DESCRIPTION = "게시글 ID를 입력해 게시글을 삭제할 수 있습니다.";
 
     @Operation(summary = REGISTER_POST, description = REGISTER_POST_DESCRIPTION)
     @PostMapping()
@@ -157,5 +159,15 @@ public class PostController {
         postService.modifyPost(modifyPostRequest);
 
         return ResponseEntity.status(OK).build();
+    }
+
+    @Operation(summary = DELETE_POST, description = DELETE_POST_DESCRIPTION)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost
+            (@PathVariable("id") @Parameter(description = POST_ID, example = ID_EXAMPLE) String id) {
+        FormatValidator.validateId(id);
+        postService.deletePost(Long.parseLong(id));
+
+        return ResponseEntity.status(NO_CONTENT).build();
     }
 }

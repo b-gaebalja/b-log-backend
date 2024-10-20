@@ -48,4 +48,8 @@ public class Post extends BaseGeneralEntity {
     public void update(String content) {
         this.content = Content.of(content);
     }
+
+    public void delete() {
+        deleteEntity();
+    }
 }
