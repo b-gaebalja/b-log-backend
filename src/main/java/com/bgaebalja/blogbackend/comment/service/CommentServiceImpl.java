@@ -1,6 +1,7 @@
 package com.bgaebalja.blogbackend.comment.service;
 
 import com.bgaebalja.blogbackend.comment.domain.Comment;
+import com.bgaebalja.blogbackend.comment.domain.CommentResponse;
 import com.bgaebalja.blogbackend.comment.domain.RegisterCommentRequest;
 import com.bgaebalja.blogbackend.comment.exception.CommentNoValueException;
 import com.bgaebalja.blogbackend.comment.repository.CommentRepository;
@@ -14,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.bgaebalja.blogbackend.comment.exception.ExceptionMessage.*;
@@ -29,8 +31,24 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     @Transactional()
-    public List<Comment> getComments(Long postId) {
-        return commentRepository.findAllCommentsByPostId(postId);
+    public List<CommentResponse> getComments(Long postId) {
+        List<Comment> comments = commentRepository.findAllCommentsByPostId(postId);
+        List<CommentResponse> commentResponses = new ArrayList<>();
+
+        for (Comment comment : comments) {
+            CommentResponse commentResponse = CommentResponse.builder()
+                    .id(comment.getId())
+                    .userName(comment.getWriter().getUsername())
+                    .postId(comment.getPost().getId())
+                    .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
+                    .content(comment.getContent().getValue())
+                    .createdAt(comment.getCreatedAt())
+                    .build();
+
+            commentResponses.add(commentResponse);
+        }
+
+        return commentResponses;
     }
 
     @Override

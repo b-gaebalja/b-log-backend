@@ -1,6 +1,6 @@
 package com.bgaebalja.blogbackend.comment.controller;
 
-import com.bgaebalja.blogbackend.comment.domain.Comment;
+import com.bgaebalja.blogbackend.comment.domain.CommentResponse;
 import com.bgaebalja.blogbackend.comment.domain.RegisterCommentRequest;
 import com.bgaebalja.blogbackend.comment.service.CommentService;
 import com.bgaebalja.blogbackend.util.FormatValidator;
@@ -28,15 +28,16 @@ public class CommentController {
 
     @Operation(summary = LOAD_COMMENTS, description = LOAD_COMMENTS_DESCRIPTION)
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<List<Comment>> getComment(@PathVariable Long postId) {
-        List<Comment> commentList = commentService.getComments(postId);
-        return new ResponseEntity<> (commentList, HttpStatus.OK);
+    public ResponseEntity<List<CommentResponse>> getComment(@PathVariable Long postId) {
+        List<CommentResponse> commentResponses = commentService.getComments(postId);
+
+        return new ResponseEntity<> (commentResponses, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<Comment>> toComment(@PathVariable Long id) {
-        List<Comment> commentList = commentService.getComments(id);
-        return new ResponseEntity<>(commentList, HttpStatus.OK);
+    public ResponseEntity<List<CommentResponse>> toComment(@PathVariable Long id) {
+        List<CommentResponse> commentLists = commentService.getComments(id);
+        return new ResponseEntity<>(commentLists, HttpStatus.OK);
     }
 
     @Operation(summary = REGISTER_COMMENT, description = REGISTER_COMMENT_DESCRIPTION)

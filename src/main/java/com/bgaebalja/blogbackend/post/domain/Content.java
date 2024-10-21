@@ -45,7 +45,7 @@ public class Content {
         return Objects.hash(content);
     }
 
-    String getValue() {
+    public String getValue() {
         return content;
     }
 
