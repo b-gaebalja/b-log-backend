@@ -32,6 +32,12 @@ public class CommentServiceImpl implements CommentService{
     public List<Comment> getComments(Long postId) {
         return commentRepository.findAllCommentsByPostId(postId);
     }
+
+    @Override
+    public List<Comment> toComments(Long id) {
+        return commentRepository.findAllById(id);
+    }
+
     @Override
     public Long countComments(Long postId) {
         return commentRepository.countCommentByPostId(postId);
@@ -39,13 +45,20 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     @Transactional
-    public Long createComment(RegisterCommentRequest registerCommentRequest, Long postId) {
+    public Long createComment(RegisterCommentRequest registerCommentRequest) {
         Users user = userRepository.findUsersByEmail(registerCommentRequest.getEmail());
-        Post post = postRepository.findById(postId).get();
 
-        Comment comment = commentRepository.save(Comment.from(registerCommentRequest, user, post));
+        Post post = postRepository.findById(registerCommentRequest.getPostId()).get();
 
-        eventPublisher.publishEvent(new NotificationEventRequest(comment));
+        Long parentId = registerCommentRequest.getParentId();
+
+        Comment parent = parentId != null
+                ? commentRepository.findById(parentId).get()
+                : null;
+
+        Comment comment = commentRepository.save(Comment.from(registerCommentRequest, user, post, parent));
+
+        eventPublisher.publishEvent(new NotificationEventRequest(comment.getId()));
 
         return comment.getId();
     }
@@ -61,5 +74,13 @@ public class CommentServiceImpl implements CommentService{
         return comment.getId();
     }
 
+    public Long deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNoValueException(COMMENT_NOT_FOUND));
+        Long postId = comment.getPost().getId();
+        comment.deleteComment();
 
+        commentRepository.save(comment);
+
+        return postId;
+    }
 }
