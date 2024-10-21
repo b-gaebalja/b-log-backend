@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ShareService {
-    void sharePost(Long postId);
+    void sharePost(Long postId, Long sharerId, String url);
     List<Share> getSharedPosts(Long sharerId);
     void deleteSharedPost(Long shareId);
 }
