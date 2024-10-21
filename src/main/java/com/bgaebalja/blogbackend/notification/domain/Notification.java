@@ -21,10 +21,10 @@ public class Notification extends BaseGeneralEntity {
     private Users targetUser;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "target_type")
+    @Column(nullable = false, length = 20)
     private TargetType targetType;
 
-    @Column(name = "target_id")
+    @Column(nullable = false)
     private Long targetId;
 
     @Convert(converter = Content.ContentConverter.class)
