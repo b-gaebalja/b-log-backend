@@ -6,7 +6,6 @@ import com.bgaebalja.blogbackend.comment.service.CommentService;
 import com.bgaebalja.blogbackend.util.FormatValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.Servlet;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -34,25 +33,46 @@ public class CommentController {
         return new ResponseEntity<> (commentList, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<List<Comment>> toComment(@PathVariable Long id) {
+        List<Comment> commentList = commentService.getComments(id);
+        return new ResponseEntity<>(commentList, HttpStatus.OK);
+    }
+
     @Operation(summary = REGISTER_COMMENT, description = REGISTER_COMMENT_DESCRIPTION)
-    @PostMapping("/posts/{postId}")
-    public ResponseEntity<Void> registerComment(@PathVariable Long postId,
-                                                   @Valid @RequestBody RegisterCommentRequest registerCommentRequest)
+    @PostMapping("/")
+    public ResponseEntity<Void> registerComment(@Valid @RequestBody RegisterCommentRequest registerCommentRequest)
     {
         FormatValidator.validateEmail(registerCommentRequest.getEmail());
-        Long id = commentService.createComment(registerCommentRequest,postId);
+        Long id = commentService.createComment(registerCommentRequest);
 
         return buildResponse(id);
     }
 
-    @PutMapping("/comments/{commentId}")
-    public ResponseEntity<Void> modifyComment(@PathVariable Long commentId,
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> modifyComment(@PathVariable Long id,
                                               @Valid @RequestBody RegisterCommentRequest registerCommentRequest){
         FormatValidator.validateEmail(registerCommentRequest.getEmail());
-        commentService.modifyComment(registerCommentRequest,commentId);
+        commentService.modifyComment(registerCommentRequest,id);
 
-        return buildResponse(commentId);
+        return buildResponse(id);
     }
+
+    @PatchMapping("/{id}/delete")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id){
+        Long postId = commentService.deleteComment(id);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{postId}")
+                .buildAndExpand(postId)
+                .toUri();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(location);
+
+        return ResponseEntity.status(HttpStatus.CREATED).headers(headers).build();
+    }
+
 
     private ResponseEntity<Void> buildResponse(Long id) {
         URI location = ServletUriComponentsBuilder
@@ -66,5 +86,4 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.CREATED).headers(headers).build();
     }
-
 }

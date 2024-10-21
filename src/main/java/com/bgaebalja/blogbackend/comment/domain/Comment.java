@@ -6,6 +6,7 @@ import com.bgaebalja.blogbackend.post.domain.Post;
 import com.bgaebalja.blogbackend.user.domain.Users;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import static lombok.AccessLevel.PROTECTED;
 import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @NoArgsConstructor(access = PROTECTED)
+@Getter
 public class Comment extends BaseGeneralEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "writer_id")
@@ -47,11 +49,16 @@ public class Comment extends BaseGeneralEntity {
         this.content = Content.of(registerCommentRequest.getContent());
     }
 
-    public static Comment from(RegisterCommentRequest registerCommentRequest, Users user, Post post){
+    public void deleteComment() {
+        this.deleteEntity();
+    }
+
+    public static Comment from(RegisterCommentRequest registerCommentRequest, Users user, Post post, Comment parent){
         return Comment.builder()
                 .content(Content.of(registerCommentRequest.getContent()))
                 .user(user)
                 .post(post)
+                .parent(parent)
                 .build();
     }
 }
