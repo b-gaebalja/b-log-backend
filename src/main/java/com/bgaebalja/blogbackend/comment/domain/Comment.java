@@ -49,11 +49,16 @@ public class Comment extends BaseGeneralEntity {
         this.content = Content.of(registerCommentRequest.getContent());
     }
 
-    public static Comment from(RegisterCommentRequest registerCommentRequest, Users user, Post post){
+    public void deleteComment() {
+        this.deleteEntity();
+    }
+
+    public static Comment from(RegisterCommentRequest registerCommentRequest, Users user, Post post, Comment parent){
         return Comment.builder()
                 .content(Content.of(registerCommentRequest.getContent()))
                 .user(user)
                 .post(post)
+                .parent(parent)
                 .build();
     }
 }
