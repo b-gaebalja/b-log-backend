@@ -3,6 +3,8 @@ package com.bgaebalja.blogbackend.config
 import com.bgaebalja.blogbackend.security.filter.JwtFilter
 import com.bgaebalja.blogbackend.security.handler.LoginFailureHandler
 import com.bgaebalja.blogbackend.security.handler.LoginSuccessHandler
+import com.bgaebalja.blogbackend.user.repository.UserRepository
+import com.bgaebalja.blogbackend.util.JwtUtil
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
@@ -22,7 +24,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableMethodSecurity
-class SecurityConfig {
+class SecurityConfig(
+    private val jwtUtil: JwtUtil,
+    private val userRepository: UserRepository
+) {
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -31,9 +36,9 @@ class SecurityConfig {
         http.csrf {it.disable()}
         http.formLogin{
             it.loginPage("/users/login")
-            it.successHandler(LoginSuccessHandler())
+            it.successHandler(LoginSuccessHandler(jwtUtil))
             it.failureHandler(LoginFailureHandler()) }
-        http.addFilterBefore(JwtFilter(), UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(JwtFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 
@@ -46,8 +51,9 @@ class SecurityConfig {
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
         configuration.allowedOriginPatterns = listOf("*")
-        configuration.allowedMethods = listOf(GET.toString(), POST.toString(), PUT.toString(), DELETE.toString(), OPTIONS.toString())
+        configuration.allowedMethods = listOf(GET.toString(), POST.toString(), PUT.toString(), PATCH.toString(),DELETE.toString(), OPTIONS.toString())
         configuration.allowedHeaders = listOf(AUTHORIZATION, CACHE_CONTROL, CONTENT_TYPE)
+        configuration.exposedHeaders = listOf(LOCATION)
         configuration.allowCredentials = true
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)

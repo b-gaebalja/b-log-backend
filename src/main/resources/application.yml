@@ -1,11 +1,19 @@
+server:
+  url: ${EC2_IP_FOR_DDIP}
+  port: 443
+  ssl:
+    key-store: file:/app/keystore.p12
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    keyStoreType: PKCS12
+    keyAlias: tomcat
 spring:
   application:
     name: b-log-backend
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/blog?serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
-    username: root
-    password: root
+    url: jdbc:mariadb://${CHUNJAE_RDS_ENDPOINT}:3306/blog?serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
+    username: ${CHUNJAE_RDS_USERNAME}
+    password: ${CHUNJAE_RDS_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,3 +21,17 @@ spring:
         hibernate:
           dialect: org.hibernate.dialect.MariaDBDialect
           format_sql: true
+logging:
+  config: classpath:logback-spring.xml
+cloud:
+  aws:
+    credentials:
+      access-key: ${B_LOG_S3_ACCESS_KEY}
+      secret-key: ${B_LOG_S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket-name: ${B_LOG_S3_BUCKET_NAME}
+jwt:
+  secret:
+    key: ${B_LOG_JWT_SECRET_KEY}
