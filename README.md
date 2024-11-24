@@ -33,7 +33,7 @@
   <br><br>
 
 ## 🗼 Architecture
-![b-log drawio-architecture](https://github.com/user-attachments/assets/e5de1330-bcd9-4baf-b216-47b95e4a5528)
+![b-log-architecture](https://github.com/user-attachments/assets/5e49cf26-3036-45a8-abbc-08af7fb8b74e)
 <br><br>
 
 ## 🗄️ ERD
